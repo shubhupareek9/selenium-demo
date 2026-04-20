@@ -10,7 +10,7 @@ jobs:
 
     steps:
 
-      # 1. Checkout code
+      # 1. Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -27,29 +27,30 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      # 4. Run tests
+      # 4. Run Selenium tests
       - name: Run Tests
         run: mvn clean test
 
-      # 5. DEBUG: check if allure-results is created
+      # 5. Debug Allure results (IMPORTANT)
       - name: Debug Allure Results
         run: |
-          echo "Checking allure-results folder..."
-          ls -R target/allure-results || echo "NO ALLURE RESULTS FOUND"
+          echo "Checking allure-results..."
+          ls -R target/allure-results || echo "NO RESULTS FOUND"
 
-      # 6. Install Allure CLI (FIXED WAY)
+      # 6. Install Allure CLI (FIXED PATH ISSUE)
       - name: Install Allure CLI
         run: |
           wget https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
           tar -xzf allure-2.27.0.tgz
-          echo "$PWD/allure-2.27.0/bin" >> $GITHUB_PATH
+          echo "$(pwd)/allure-2.27.0/bin" >> $GITHUB_PATH
+          export PATH=$PATH:$(pwd)/allure-2.27.0/bin
           allure --version
 
-      # 7. Generate Allure Report + verify output
+      # 7. Generate Allure HTML report
       - name: Generate Allure Report
         run: |
           allure generate target/allure-results -o allure-report --clean
-          echo "Checking allure-report folder..."
+          echo "Checking report folder..."
           ls -R allure-report
 
       # 8. Upload HTML report
