@@ -31,7 +31,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- WebDriver Manager (fixes CI Chrome issues) -->
+        <!-- WebDriver Manager (fixes Chrome issues in CI) -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
@@ -56,11 +56,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <allure.results.directory>target/allure-results</allure.results.directory>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
 
         </plugins>
