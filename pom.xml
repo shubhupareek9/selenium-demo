@@ -6,35 +6,40 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>example</groupId>
-    <artifactId>selenium-allure-clean</artifactId>
+    <artifactId>selenium-allure-final</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
     </properties>
 
     <dependencies>
 
+        <!-- Selenium -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
             <version>4.21.0</version>
         </dependency>
 
+        <!-- JUnit 5 (IMPORTANT for Allure integration) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.2</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
 
+        <!-- WebDriver Manager -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
             <version>5.7.0</version>
         </dependency>
 
+        <!-- ALLURE JUNIT5 INTEGRATION (CRITICAL FIX) -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit5</artifactId>
@@ -47,14 +52,22 @@
     <build>
         <plugins>
 
+            <!-- Surefire MUST be configured correctly -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+
                 <configuration>
+
+                    <!-- REQUIRED: enables JUnit5 + Allure properly -->
+                    <useModulePath>false</useModulePath>
+
+                    <!-- THIS is what was missing in your setup -->
                     <systemPropertyVariables>
                         <allure.results.directory>target/allure-results</allure.results.directory>
                     </systemPropertyVariables>
+
                 </configuration>
             </plugin>
 
