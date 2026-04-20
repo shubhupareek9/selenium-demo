@@ -1,5 +1,6 @@
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.junit.jupiter.api.Test;
 
 public class GoogleTest {
@@ -7,16 +8,17 @@ public class GoogleTest {
     @Test
     public void openGoogle() {
 
-        // Launch Chrome browser
-        WebDriver driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
 
-        // Open Google
+        WebDriver driver = new ChromeDriver(options);
+
         driver.get("https://www.google.com");
 
-        // Print page title
-        System.out.println("Page Title: " + driver.getTitle());
+        System.out.println("Title: " + driver.getTitle());
 
-        // Close browser
         driver.quit();
     }
 }
