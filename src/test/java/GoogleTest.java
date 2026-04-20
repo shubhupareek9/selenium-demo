@@ -1,26 +1,31 @@
 import io.qameta.allure.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.chrome.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Epic("Google Automation")
+@Feature("Search Feature")
 public class GoogleTest {
 
     private WebDriver getDriver() {
+
+        WebDriverManager.chromedriver().setup(); // FIXES CI ISSUE
+
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
+
         return new ChromeDriver(options);
     }
 
     @Test
-    @Epic("Google Tests")
-    @Feature("Search")
     @Story("Open Google")
-    public void openGoogle() {
+    @Severity(SeverityLevel.CRITICAL)
+    public void openGoogleTest() {
 
         WebDriver driver = getDriver();
 
@@ -32,14 +37,15 @@ public class GoogleTest {
     }
 
     @Test
-    @Story("Search test")
-    public void searchGoogle() {
+    @Story("Search Google")
+    @Severity(SeverityLevel.NORMAL)
+    public void searchTest() {
 
         WebDriver driver = getDriver();
 
         driver.get("https://www.google.com");
 
-        driver.findElement(By.name("q")).sendKeys("selenium");
+        driver.findElement(By.name("q")).sendKeys("selenium webdriver");
         driver.findElement(By.name("q")).submit();
 
         assertTrue(driver.getTitle().toLowerCase().contains("selenium"));
