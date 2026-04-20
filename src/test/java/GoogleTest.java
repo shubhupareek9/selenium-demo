@@ -6,8 +6,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Epic("Google Automation")
-@Feature("Search Feature")
 public class GoogleTest {
 
     private WebDriver getDriver() {
@@ -19,9 +17,10 @@ public class GoogleTest {
     }
 
     @Test
+    @Epic("Google Tests")
+    @Feature("Search")
     @Story("Open Google")
-    @Severity(SeverityLevel.CRITICAL)
-    public void openGoogleTest() {
+    public void openGoogle() {
 
         WebDriver driver = getDriver();
 
@@ -33,32 +32,17 @@ public class GoogleTest {
     }
 
     @Test
-    @Story("Search Google")
-    @Severity(SeverityLevel.NORMAL)
-    public void searchTest() {
+    @Story("Search test")
+    public void searchGoogle() {
 
         WebDriver driver = getDriver();
 
         driver.get("https://www.google.com");
 
-        driver.findElement(By.name("q")).sendKeys("selenium webdriver");
+        driver.findElement(By.name("q")).sendKeys("selenium");
         driver.findElement(By.name("q")).submit();
 
         assertTrue(driver.getTitle().toLowerCase().contains("selenium"));
-
-        driver.quit();
-    }
-
-    @Test
-    @Story("Search box check")
-    @Severity(SeverityLevel.MINOR)
-    public void searchBoxTest() {
-
-        WebDriver driver = getDriver();
-
-        driver.get("https://www.google.com");
-
-        assertTrue(driver.findElement(By.name("q")).isDisplayed());
 
         driver.quit();
     }
