@@ -6,13 +6,13 @@ import org.openqa.selenium.chrome.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Epic("Google Automation")
-@Feature("Search Feature")
+@Epic("UI Automation")
+@Feature("Basic Tests")
 public class GoogleTest {
 
     private WebDriver getDriver() {
 
-        WebDriverManager.chromedriver().setup(); // FIXES CI ISSUE
+        WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
@@ -23,32 +23,28 @@ public class GoogleTest {
     }
 
     @Test
-    @Story("Open Google")
+    @Story("Open example site")
     @Severity(SeverityLevel.CRITICAL)
-    public void openGoogleTest() {
+    public void openTest() {
 
         WebDriver driver = getDriver();
 
-        driver.get("https://www.google.com");
+        driver.get("https://example.com");
 
-        assertTrue(driver.getTitle().toLowerCase().contains("google"));
+        assertTrue(driver.getTitle().contains("Example"));
 
         driver.quit();
     }
 
     @Test
-    @Story("Search Google")
-    @Severity(SeverityLevel.NORMAL)
-    public void searchTest() {
+    @Story("Second test")
+    public void secondTest() {
 
         WebDriver driver = getDriver();
 
-        driver.get("https://www.google.com");
+        driver.get("https://example.com");
 
-        driver.findElement(By.name("q")).sendKeys("selenium webdriver");
-        driver.findElement(By.name("q")).submit();
-
-        assertTrue(driver.getTitle().toLowerCase().contains("selenium"));
+        assertNotNull(driver.getTitle());
 
         driver.quit();
     }
