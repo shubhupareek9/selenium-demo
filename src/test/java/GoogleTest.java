@@ -1,51 +1,74 @@
-import io.qameta.allure.*;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.*;
 
+import com.aventstack.extentreports.*;
+import utils.ExtentManager;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-@Epic("UI Automation")
-@Feature("Basic Tests")
 public class GoogleTest {
 
-    private WebDriver getDriver() {
+    static ExtentReports extent;
+    ExtentTest test;
+    WebDriver driver;
 
+    @BeforeAll
+    public static void setupReport() {
+        extent = ExtentManager.getExtent();
+    }
+
+    @BeforeEach
+    public void setup() {
         WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=neww");
+        options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
 
-        return new ChromeDriver(options);
+        driver = new ChromeDriver(options);
     }
 
     @Test
-    @Story("Open example site")
-    @Severity(SeverityLevel.CRITICAL)
-    public void openTest() {
+    public void openGoogleTest() {
 
-        WebDriver driver = getDriver();
+        test = extent.createTest("Open Google Test");
 
-        driver.get("https://example.com");
+        driver.get("https://www.google.com");
 
-        assertTrue(driver.getTitle().contains("Example"));
+        test.info("Opened Google");
 
-        driver.quit();
+        assertTrue(driver.getTitle().toLowerCase().contains("google"));
+
+        test.pass("Google title verified");
     }
 
     @Test
-    @Story("Second test")
-    public void secondTest() {
+    public void searchTest() {
 
-        WebDriver driver = getDriver();
+        test = extent.createTest("Search Test");
 
-        driver.get("https://example.com");
+        driver.get("https://www.google.com");
 
-        assertNotNull(driver.getTitle());
+        driver.findElement(By.name("q")).sendKeys("selenium webdriver");
+        driver.findElement(By.name("q")).submit();
 
+        test.info("Search executed");
+
+        assertTrue(driver.getTitle().length() > 0);
+
+        test.pass("Search successful");
+    }
+
+    @AfterEach
+    public void tearDown() {
         driver.quit();
+    }
+
+    @AfterAll
+    public static void flushReport() {
+        extent.flush();
     }
 }
