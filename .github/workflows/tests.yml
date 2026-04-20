@@ -1,9 +1,7 @@
-name: Selenium + Allure Tests
+name: Selenium Tests
 
 on:
   push:
-    branches: ["main"]
-  pull_request:
     branches: ["main"]
 
 jobs:
@@ -12,8 +10,7 @@ jobs:
 
     steps:
 
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -26,14 +23,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      - name: Run tests
+      - name: Run Tests
         run: mvn clean test
 
-      - name: Generate Allure report
-        run: mvn allure:report
-
-      - name: Upload Allure report
+      - name: Upload results
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report
-          path: target/site/allure-maven-plugin
+          name: allure-results
+          path: target/allure-results
