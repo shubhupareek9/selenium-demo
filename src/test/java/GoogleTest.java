@@ -1,14 +1,16 @@
 import io.qameta.allure.*;
+import io.qameta.allure.junit5.AllureJunit5;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(AllureJunit5.class)
 @Epic("Google Automation")
 @Feature("Search Feature")
-
 public class GoogleTest {
 
     private WebDriver getDriver() {
@@ -51,7 +53,7 @@ public class GoogleTest {
     }
 
     @Test
-    @Story("Check search box exists")
+    @Story("Check search box")
     @Severity(SeverityLevel.MINOR)
     public void searchBoxTest() {
 
