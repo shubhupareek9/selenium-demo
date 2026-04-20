@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>example</groupId>
-    <artifactId>selenium-allure-clean</artifactId>
+    <artifactId>selenium-allure-final</artifactId>
     <version>1.0</version>
 
     <properties>
@@ -31,7 +31,14 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ALLURE CORE INTEGRATION (IMPORTANT FIX) -->
+        <!-- WebDriver Manager (FIXES CHROME ISSUE) -->
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>5.7.0</version>
+        </dependency>
+
+        <!-- Allure -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit5</artifactId>
@@ -43,11 +50,16 @@
     <build>
         <plugins>
 
-            <!-- ONLY Surefire (Allure does NOT need its own maven plugin here) -->
+            <!-- Test runner -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <allure.results.directory>target/allure-results</allure.results.directory>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
 
         </plugins>
