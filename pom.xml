@@ -6,8 +6,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>example</groupId>
-    <artifactId>selenium-allure-demo</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>selenium-allure-clean</artifactId>
+    <version>1.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -31,7 +31,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Allure -->
+        <!-- ALLURE CORE INTEGRATION (IMPORTANT FIX) -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit5</artifactId>
@@ -43,23 +43,11 @@
     <build>
         <plugins>
 
-            <!-- Runs tests -->
+            <!-- ONLY Surefire (Allure does NOT need its own maven plugin here) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <allure.results.directory>target/allure-results</allure.results.directory>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-
-            <!-- Generates report -->
-            <plugin>
-                <groupId>io.qameta.allure</groupId>
-                <artifactId>allure-maven</artifactId>
-                <version>2.12.0</version>
             </plugin>
 
         </plugins>
