@@ -1,10 +1,13 @@
+import io.qameta.allure.*;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.By;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+@Epic("Google Automation")
+@Feature("Search Feature")
 
 public class GoogleTest {
 
@@ -13,12 +16,14 @@ public class GoogleTest {
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
-
         return new ChromeDriver(options);
     }
 
     @Test
+    @Story("Open Google Home Page")
+    @Severity(SeverityLevel.CRITICAL)
     public void openGoogleTest() {
+
         WebDriver driver = getDriver();
 
         driver.get("https://www.google.com");
@@ -29,7 +34,10 @@ public class GoogleTest {
     }
 
     @Test
-    public void searchInGoogleTest() {
+    @Story("Search in Google")
+    @Severity(SeverityLevel.NORMAL)
+    public void searchTest() {
+
         WebDriver driver = getDriver();
 
         driver.get("https://www.google.com");
@@ -43,14 +51,15 @@ public class GoogleTest {
     }
 
     @Test
-    public void checkSearchBoxExistsTest() {
+    @Story("Check search box exists")
+    @Severity(SeverityLevel.MINOR)
+    public void searchBoxTest() {
+
         WebDriver driver = getDriver();
 
         driver.get("https://www.google.com");
 
-        boolean isDisplayed = driver.findElement(By.name("q")).isDisplayed();
-
-        assertTrue(isDisplayed);
+        assertTrue(driver.findElement(By.name("q")).isDisplayed());
 
         driver.quit();
     }
