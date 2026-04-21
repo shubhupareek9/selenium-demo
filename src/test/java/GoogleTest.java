@@ -2,9 +2,12 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.*;
+import org.openqa.selenium.support.ui.*;
 
 import com.aventstack.extentreports.*;
 import utils.ExtentManager;
+
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,6 +16,7 @@ public class GoogleTest {
     static ExtentReports extent;
     ExtentTest test;
     WebDriver driver;
+    WebDriverWait wait;
 
     @BeforeAll
     public static void setupReport() {
@@ -29,6 +33,21 @@ public class GoogleTest {
         options.addArguments("--disable-dev-shm-usage");
 
         driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    // ✅ Handle cookie popup safely
+    private void handleCookies() {
+        try {
+            WebElement accept = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                    By.xpath("//button[contains(.,'Accept')]")
+                )
+            );
+            accept.click();
+        } catch (Exception e) {
+            // ignore if not present
+        }
     }
 
     @Test
@@ -36,6 +55,7 @@ public class GoogleTest {
         test = extent.createTest("Open Google Test");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
         test.info("Opened Google");
 
@@ -49,9 +69,14 @@ public class GoogleTest {
         test = extent.createTest("Search Test");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
-        driver.findElement(By.name("q")).sendKeys("selenium webdriver");
-        driver.findElement(By.name("q")).submit();
+        WebElement searchBox = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
+        );
+
+        searchBox.sendKeys("selenium webdriver");
+        searchBox.submit();
 
         test.info("Search executed");
 
@@ -60,15 +85,16 @@ public class GoogleTest {
         test.pass("Search successful");
     }
 
-    // 🔥 NEW TESTS BELOW
-
     @Test
     public void verifySearchBoxPresent() {
         test = extent.createTest("Verify Search Box Present");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
-        WebElement searchBox = driver.findElement(By.name("q"));
+        WebElement searchBox = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
+        );
 
         assertTrue(searchBox.isDisplayed());
 
@@ -80,8 +106,13 @@ public class GoogleTest {
         test = extent.createTest("Verify Google Logo");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
-        WebElement logo = driver.findElement(By.xpath("//img[@alt='Google']"));
+        WebElement logo = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//img[@alt='Google']")
+            )
+        );
 
         assertTrue(logo.isDisplayed());
 
@@ -93,9 +124,14 @@ public class GoogleTest {
         test = extent.createTest("Search Different Keyword");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
-        driver.findElement(By.name("q")).sendKeys("automation testing");
-        driver.findElement(By.name("q")).submit();
+        WebElement searchBox = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
+        );
+
+        searchBox.sendKeys("automation testing");
+        searchBox.submit();
 
         assertTrue(driver.getTitle().toLowerCase().contains("automation"));
 
@@ -107,6 +143,7 @@ public class GoogleTest {
         test = extent.createTest("Verify Title Not Empty");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
         assertFalse(driver.getTitle().isEmpty());
 
@@ -118,6 +155,7 @@ public class GoogleTest {
         test = extent.createTest("Verify Page Source");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
         assertTrue(driver.getPageSource().toLowerCase().contains("google"));
 
@@ -129,8 +167,11 @@ public class GoogleTest {
         test = extent.createTest("Verify Search Box Enabled");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
-        WebElement searchBox = driver.findElement(By.name("q"));
+        WebElement searchBox = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
+        );
 
         assertTrue(searchBox.isEnabled());
 
@@ -142,9 +183,16 @@ public class GoogleTest {
         test = extent.createTest("Search and Check Results Page");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
-        driver.findElement(By.name("q")).sendKeys("Selenium");
-        driver.findElement(By.name("q")).submit();
+        WebElement searchBox = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
+        );
+
+        searchBox.sendKeys("Selenium");
+        searchBox.submit();
+
+        wait.until(ExpectedConditions.urlContains("search"));
 
         assertTrue(driver.getCurrentUrl().contains("search"));
 
@@ -156,6 +204,7 @@ public class GoogleTest {
         test = extent.createTest("Verify Google URL");
 
         driver.get("https://www.google.com");
+        handleCookies();
 
         assertTrue(driver.getCurrentUrl().contains("google"));
 
