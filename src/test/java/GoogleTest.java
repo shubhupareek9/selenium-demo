@@ -37,6 +37,11 @@ public class GoogleTest {
         wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
+    // 🔧 helper for clean step logging
+    private void step(String message) {
+        test.info(message);
+    }
+
     private void openGoogle() {
         driver.get("https://www.google.com");
 
@@ -54,10 +59,13 @@ public class GoogleTest {
 
     @Test
     public void openGoogleTest() {
-        test = extent.createTest("Open Google");
 
+        test = extent.createTest("Open Google Test");
+
+        step("Opening Google homepage");
         openGoogle();
 
+        step("Verifying page title");
         assertTrue(driver.getTitle().toLowerCase().contains("google"));
 
         test.pass("Google opened successfully");
@@ -65,66 +73,93 @@ public class GoogleTest {
 
     @Test
     public void searchTest() {
-        test = extent.createTest("Search Selenium");
 
+        test = extent.createTest("Search Test");
+
+        step("Opening Google");
         openGoogle();
 
+        step("Locating search box");
         WebElement box = getSearchBox();
+
+        step("Entering search text: selenium");
         box.sendKeys("selenium");
+
+        step("Submitting search");
         box.submit();
 
+        step("Waiting for results page");
         wait.until(ExpectedConditions.titleContains("selenium"));
 
+        step("Validating results title");
         assertTrue(driver.getTitle().toLowerCase().contains("selenium"));
 
-        test.pass("Search worked");
+        test.pass("Search test completed successfully");
     }
 
     @Test
     public void searchAutomation() {
-        test = extent.createTest("Search Automation");
 
+        test = extent.createTest("Automation Search Test");
+
+        step("Opening Google");
         openGoogle();
 
+        step("Finding search box");
         WebElement box = getSearchBox();
+
+        step("Typing automation testing");
         box.sendKeys("automation testing");
+
+        step("Submitting search");
         box.submit();
 
+        step("Waiting for page title");
         wait.until(ExpectedConditions.titleContains("automation"));
 
+        step("Validating result");
         assertTrue(driver.getTitle().toLowerCase().contains("automation"));
 
-        test.pass("Automation search passed");
+        test.pass("Automation search successful");
     }
 
     @Test
     public void verifySearchBoxPresent() {
+
         test = extent.createTest("Search Box Present");
 
+        step("Opening Google");
         openGoogle();
 
+        step("Checking search box visibility");
         assertTrue(getSearchBox().isDisplayed());
 
-        test.pass("Search box visible");
+        test.pass("Search box is visible");
     }
 
     @Test
     public void verifySearchBoxEnabled() {
+
         test = extent.createTest("Search Box Enabled");
 
+        step("Opening Google");
         openGoogle();
 
+        step("Checking if search box is enabled");
         assertTrue(getSearchBox().isEnabled());
 
-        test.pass("Search box enabled");
+        test.pass("Search box is enabled");
     }
 
     @Test
     public void verifyTitleNotEmpty() {
+
         test = extent.createTest("Title Not Empty");
 
+        step("Opening Google");
         openGoogle();
 
+        step("Checking page title");
         assertFalse(driver.getTitle().isEmpty());
 
         test.pass("Title is not empty");
@@ -132,59 +167,74 @@ public class GoogleTest {
 
     @Test
     public void verifyGoogleInTitle() {
+
         test = extent.createTest("Title Contains Google");
 
+        step("Opening Google");
         openGoogle();
 
+        step("Validating title contains 'google'");
         assertTrue(driver.getTitle().toLowerCase().contains("google"));
 
-        test.pass("Title contains Google");
+        test.pass("Title verified");
     }
 
     @Test
     public void verifyPageLoads() {
+
         test = extent.createTest("Page Load Test");
 
+        step("Opening Google");
         openGoogle();
+
+        step("Checking document ready state");
 
         String state = (String)((JavascriptExecutor)driver)
                 .executeScript("return document.readyState");
 
         assertEquals("complete", state);
 
-        test.pass("Page fully loaded");
+        test.pass("Page loaded successfully");
     }
 
     @Test
     public void verifyUrl() {
+
         test = extent.createTest("URL Test");
 
+        step("Opening Google");
         openGoogle();
 
+        step("Checking current URL");
         assertTrue(driver.getCurrentUrl().contains("google"));
 
-        test.pass("Correct URL");
+        test.pass("URL is correct");
     }
 
     @Test
     public void verifySearchSuggestionsAppear() {
-        test = extent.createTest("Search Suggestions Appear");
 
+        test = extent.createTest("Search Suggestions Test");
+
+        step("Opening Google");
         openGoogle();
 
+        step("Typing search text");
         WebElement box = getSearchBox();
         box.sendKeys("selenium");
 
-        // wait for suggestions dropdown
+        step("Waiting for suggestions dropdown");
+
         List<WebElement> suggestions = wait.until(
             ExpectedConditions.presenceOfAllElementsLocatedBy(
                 By.xpath("//ul[@role='listbox']//li")
             )
         );
 
+        step("Validating suggestions count");
         assertTrue(suggestions.size() > 0);
 
-        test.pass("Search suggestions displayed");
+        test.pass("Suggestions appeared successfully");
     }
 
     @AfterEach
