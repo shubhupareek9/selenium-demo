@@ -36,13 +36,26 @@ public class GoogleTest extends BaseTest {
     }
 
     @Test
-    public void test04_searchMilk() {
-        GooglePage googlePage = new GooglePage(driver);
-        googlePage.open();
+    public void test04_searchMultipleItems() {
 
-        googlePage.search("milk");
+         GooglePage googlePage = new GooglePage(driver);
+         googlePage.open();
 
-        Assert.assertTrue(googlePage.isOnResultsPage(),
-                "User is not navigated to search results page");
+         String[] items = {"milk", "butter", "cheese", "nuts"};
+
+        for (String item : items) {
+
+               // perform search
+               googlePage.search(item);
+
+              // verify navigation to results page
+               Assert.assertTrue(
+                googlePage.isOnResultsPage(),
+                "User is not navigated to results page for: " + item
+        );
+
+        // go back to Google homepage for next search
+        driver.navigate().back();
     }
+}
 }
