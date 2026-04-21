@@ -1,5 +1,6 @@
 package utils;
-import com.aventstack.extentreports.ExtentReports;
+
+import com.aventstack.extentreports.*;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 
 public class ExtentManager {
@@ -10,14 +11,18 @@ public class ExtentManager {
 
         if (extent == null) {
 
-            ExtentSparkReporter reporter =
-                    new ExtentSparkReporter("extent-report.html");
+            ExtentSparkReporter spark =
+                    new ExtentSparkReporter("target/extent-report.html");
+
+            spark.config().setReportName("Selenium Automation Report");
+            spark.config().setDocumentTitle("Test Execution Results");
 
             extent = new ExtentReports();
-            extent.attachReporter(reporter);
+            extent.attachReporter(spark);
 
-            extent.setSystemInfo("Project", "Selenium Automation");
-            extent.setSystemInfo("Tester", "You");
+            extent.setSystemInfo("Project", "Selenium Extent Demo");
+            extent.setSystemInfo("Environment", "QA");
+            extent.setSystemInfo("Framework", "JUnit 5 + Selenium");
         }
 
         return extent;
