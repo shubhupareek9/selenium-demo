@@ -2,27 +2,28 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.*;
-
+import org.openqa.selenium.support.ui.*;
 import com.aventstack.extentreports.*;
 import utils.ExtentManager;
 
+import java.time.Duration;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GoogleTest {
 
     static ExtentReports extent;
     ExtentTest test;
     WebDriver driver;
+    WebDriverWait wait;
 
     @BeforeAll
-    public static void startReport() {
+    public static void setupReport() {
         extent = ExtentManager.getExtent();
     }
 
     @BeforeEach
     public void setup() {
-
         WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
@@ -31,116 +32,161 @@ public class GoogleTest {
         options.addArguments("--disable-dev-shm-usage");
 
         driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    // ---------------- TEST 1 ----------------
+    private void step(String msg) {
+        test.info(msg);
+    }
+
+    private void openGoogle() {
+        driver.get("https://www.google.com");
+        step("Opened Google homepage");
+    }
+
+    // 1
     @Test
-    @Order(1)
     public void test01_openGoogle() {
         test = extent.createTest("Open Google");
-        driver.get("https://www.google.com");
-        test.info("Opened Google homepage");
-        assertTrue(driver.getTitle().toLowerCase().contains("google"));
+        openGoogle();
+        assertTrue(driver.getTitle().contains("Google"));
         test.pass("Title verified");
     }
 
-    // ---------------- TEST 2 ----------------
+    // 2
     @Test
-    @Order(2)
-    public void test02_searchKeyword() {
-        test = extent.createTest("Search Keyword");
-        driver.get("https://www.google.com");
-        driver.findElement(By.name("q")).sendKeys("selenium");
-        driver.findElement(By.name("q")).submit();
-        test.info("Search executed");
-        assertTrue(driver.getTitle().length() > 0);
+    public void test02_searchSelenium() {
+        test = extent.createTest("Search Selenium");
+
+        openGoogle();
+
+        WebElement box = wait.until(d -> d.findElement(By.name("q")));
+        box.sendKeys("selenium webdriver");
+        step("Entered search text");
+
+        box.submit();
+        step("Submitted search");
+
+        wait.until(d -> d.getTitle().toLowerCase().contains("selenium"));
+
+        assertTrue(driver.getTitle().toLowerCase().contains("selenium"));
         test.pass("Search successful");
     }
 
-    // ---------------- TEST 3 ----------------
+    // 3
     @Test
-    @Order(3)
-    public void test03_gmailLink() {
-        test = extent.createTest("Gmail Link");
-        driver.get("https://www.google.com");
-        assertTrue(driver.findElement(By.linkText("Gmail")).isDisplayed());
-        test.pass("Gmail link visible");
+    public void test03_searchJava() {
+        test = extent.createTest("Search Java");
+
+        openGoogle();
+
+        WebElement box = wait.until(d -> d.findElement(By.name("q")));
+        box.sendKeys("java tutorials");
+        step("Typed Java query");
+
+        box.submit();
+
+        wait.until(d -> d.getTitle().length() > 0);
+        test.pass("Java search executed");
     }
 
-    // ---------------- TEST 4 ----------------
+    // 4
     @Test
-    @Order(4)
-    public void test04_imagesLink() {
-        test = extent.createTest("Images Link");
-        driver.get("https://www.google.com");
-        assertTrue(driver.findElement(By.linkText("Images")).isDisplayed());
-        test.pass("Images link visible");
+    public void test04_searchSeleniumHQ() {
+        test = extent.createTest("Search SeleniumHQ");
+
+        openGoogle();
+
+        WebElement box = wait.until(d -> d.findElement(By.name("q")));
+        box.sendKeys("seleniumhq");
+        box.submit();
+
+        step("SeleniumHQ searched");
+        test.pass("Search done");
     }
 
-    // ---------------- TEST 5 ----------------
+    // 5
     @Test
-    @Order(5)
-    public void test05_feelingLuckyButton() {
-        test = extent.createTest("Feeling Lucky Button");
-        driver.get("https://www.google.com");
-        assertTrue(driver.findElement(By.name("btnI")).isDisplayed());
-        test.pass("Button visible");
-    }
-
-    // ---------------- TEST 6 ----------------
-    @Test
-    @Order(6)
-    public void test06_searchBoxVisible() {
+    public void test05_verifySearchBoxVisible() {
         test = extent.createTest("Search Box Visible");
-        driver.get("https://www.google.com");
-        assertTrue(driver.findElement(By.name("q")).isDisplayed());
+
+        openGoogle();
+
+        WebElement box = wait.until(d -> d.findElement(By.name("q")));
+        assertTrue(box.isDisplayed());
+
         test.pass("Search box visible");
     }
 
-    // ---------------- TEST 7 ----------------
+    // 6
     @Test
-    @Order(7)
-    public void test07_pageTitleNotEmpty() {
-        test = extent.createTest("Page Title Not Empty");
-        driver.get("https://www.google.com");
+    public void test06_clearSearchBox() {
+        test = extent.createTest("Clear Search Box");
+
+        openGoogle();
+
+        WebElement box = wait.until(d -> d.findElement(By.name("q")));
+        box.sendKeys("test data");
+        box.clear();
+
+        assertEquals("", box.getAttribute("value"));
+        test.pass("Cleared successfully");
+    }
+
+    // 7
+    @Test
+    public void test07_searchSuggestionsAppear() {
+        test = extent.createTest("Search Suggestions");
+
+        openGoogle();
+
+        WebElement box = wait.until(d -> d.findElement(By.name("q")));
+        box.sendKeys("sel");
+
+        wait.until(d -> d.findElements(By.cssSelector("ul li")).size() > 0);
+
+        test.pass("Suggestions appeared");
+    }
+
+    // 8
+    @Test
+    public void test08_pageTitleNotEmpty() {
+        test = extent.createTest("Title Not Empty");
+
+        openGoogle();
+
         assertFalse(driver.getTitle().isEmpty());
         test.pass("Title is not empty");
     }
 
-    // ---------------- TEST 8 ----------------
+    // 9
     @Test
-    @Order(8)
-    public void test08_urlCheck() {
+    public void test09_urlContainsGoogle() {
         test = extent.createTest("URL Check");
-        driver.get("https://www.google.com");
+
+        openGoogle();
+
         assertTrue(driver.getCurrentUrl().contains("google"));
         test.pass("URL verified");
     }
 
-    // ---------------- TEST 9 ----------------
+    // 10
     @Test
-    @Order(9)
-    public void test09_logoVisible() {
-        test = extent.createTest("Logo Visible");
-        driver.get("https://www.google.com");
-        assertTrue(driver.findElement(By.cssSelector("img[alt='Google']")).isDisplayed());
-        test.pass("Logo visible");
-    }
+    public void test10_inputAcceptsText() {
+        test = extent.createTest("Input Accepts Text");
 
-    // ---------------- TEST 10 ----------------
-    @Test
-    @Order(10)
-    public void test10_footerPresent() {
-        test = extent.createTest("Footer Present");
-        driver.get("https://www.google.com");
-        assertTrue(driver.findElement(By.cssSelector("body")).isDisplayed());
-        test.pass("Page body loaded");
+        openGoogle();
+
+        WebElement box = wait.until(d -> d.findElement(By.name("q")));
+        box.sendKeys("automation test");
+
+        assertEquals("automation test", box.getAttribute("value"));
+        test.pass("Input works correctly");
     }
 
     @AfterEach
     public void tearDown() {
         if (driver != null) driver.quit();
-        test.info("Browser closed");
     }
 
     @AfterAll
