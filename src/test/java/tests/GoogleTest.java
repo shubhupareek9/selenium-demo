@@ -7,41 +7,42 @@ import pages.GooglePage;
 
 public class GoogleTest extends BaseTest {
 
-    GooglePage google;
-
     @Test
-    public void test1_openGoogle() {
-        google = new GooglePage(driver);
-        google.open();
+    public void test01_openGoogle() {
+        GooglePage googlePage = new GooglePage(driver);
+        googlePage.open();
 
-        Assert.assertTrue(google.getTitle().toLowerCase().contains("google"));
+        Assert.assertTrue(googlePage.getTitle().contains("Google"),
+                "Google page did not open");
     }
 
     @Test
-    public void test2_searchSelenium() {
-        google = new GooglePage(driver);
-        google.open();
+    public void test02_searchBoxVisible() {
+        GooglePage googlePage = new GooglePage(driver);
+        googlePage.open();
 
-        google.search("selenium webdriver");
-
-        Assert.assertTrue(google.getTitle().length() > 0);
+        Assert.assertTrue(googlePage.isSearchBoxDisplayed(),
+                "Search box is not visible");
     }
 
     @Test
-    public void test3_searchJava() {
-        google = new GooglePage(driver);
-        google.open();
+    public void test03_pageTitle() {
+        GooglePage googlePage = new GooglePage(driver);
+        googlePage.open();
 
-        google.search("java tutorial");
-
-        Assert.assertTrue(google.getTitle().contains("Java") || true);
+        String title = googlePage.getTitle();
+        Assert.assertTrue(title.contains("Google"),
+                "Page title is incorrect");
     }
 
     @Test
-    public void test4_searchBoxVisible() {
-        google = new GooglePage(driver);
-        google.open();
+    public void test04_searchMilk() {
+        GooglePage googlePage = new GooglePage(driver);
+        googlePage.open();
 
-        Assert.assertTrue(google.isSearchBoxDisplayed());
+        googlePage.search("milk");
+
+        Assert.assertTrue(googlePage.isOnResultsPage(),
+                "User is not navigated to search results page");
     }
 }
