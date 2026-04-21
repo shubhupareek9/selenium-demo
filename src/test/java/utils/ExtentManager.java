@@ -7,20 +7,21 @@ public class ExtentManager {
 
     private static ExtentReports extent;
 
-    public static synchronized ExtentReports getExtent() {
+    public static ExtentReports getExtent() {
 
         if (extent == null) {
 
             ExtentSparkReporter spark =
                     new ExtentSparkReporter("target/extent-report.html");
 
-            spark.config().setDocumentTitle("Automation Report");
-            spark.config().setReportName("Selenium Execution Report");
+            spark.config().setReportName("Google Automation Report");
+            spark.config().setDocumentTitle("Selenium Extent Report");
 
             extent = new ExtentReports();
             extent.attachReporter(spark);
 
-            extent.setSystemInfo("Framework", "JUnit5 + Selenium");
+            extent.setSystemInfo("OS", System.getProperty("os.name"));
+            extent.setSystemInfo("Java", System.getProperty("java.version"));
         }
 
         return extent;
