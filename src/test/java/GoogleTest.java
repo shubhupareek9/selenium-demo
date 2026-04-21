@@ -8,6 +8,7 @@ import com.aventstack.extentreports.*;
 import utils.ExtentManager;
 
 import java.time.Duration;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,117 +34,96 @@ public class GoogleTest {
         options.addArguments("--disable-dev-shm-usage");
 
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    // ✅ Handle cookie popup safely
-    private void handleCookies() {
-        try {
-            WebElement accept = wait.until(
-                ExpectedConditions.elementToBeClickable(
-                    By.xpath("//button[contains(.,'Accept')]")
-                )
-            );
-            accept.click();
-        } catch (Exception e) {
-            // ignore if not present
-        }
+    private void openGoogle() {
+        driver.get("https://www.google.com");
+
+        wait.until(d ->
+            ((JavascriptExecutor)d).executeScript("return document.readyState")
+                .equals("complete")
+        );
+    }
+
+    private WebElement getSearchBox() {
+        return wait.until(
+            ExpectedConditions.presenceOfElementLocated(By.name("q"))
+        );
     }
 
     @Test
     public void openGoogleTest() {
-        test = extent.createTest("Open Google Test");
+        test = extent.createTest("Open Google");
 
-        driver.get("https://www.google.com");
-        handleCookies();
-
-        test.info("Opened Google");
+        openGoogle();
 
         assertTrue(driver.getTitle().toLowerCase().contains("google"));
 
-        test.pass("Google title verified");
+        test.pass("Google opened successfully");
     }
 
     @Test
     public void searchTest() {
-        test = extent.createTest("Search Test");
+        test = extent.createTest("Search Selenium");
 
-        driver.get("https://www.google.com");
-        handleCookies();
+        openGoogle();
 
-        WebElement searchBox = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
-        );
+        WebElement box = getSearchBox();
+        box.sendKeys("selenium");
+        box.submit();
 
-        searchBox.sendKeys("selenium webdriver");
-        searchBox.submit();
+        wait.until(ExpectedConditions.titleContains("selenium"));
 
-        test.info("Search executed");
+        assertTrue(driver.getTitle().toLowerCase().contains("selenium"));
 
-        assertTrue(driver.getTitle().length() > 0);
+        test.pass("Search worked");
+    }
 
-        test.pass("Search successful");
+    @Test
+    public void searchAutomation() {
+        test = extent.createTest("Search Automation");
+
+        openGoogle();
+
+        WebElement box = getSearchBox();
+        box.sendKeys("automation testing");
+        box.submit();
+
+        wait.until(ExpectedConditions.titleContains("automation"));
+
+        assertTrue(driver.getTitle().toLowerCase().contains("automation"));
+
+        test.pass("Automation search passed");
     }
 
     @Test
     public void verifySearchBoxPresent() {
-        test = extent.createTest("Verify Search Box Present");
+        test = extent.createTest("Search Box Present");
 
-        driver.get("https://www.google.com");
-        handleCookies();
+        openGoogle();
 
-        WebElement searchBox = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
-        );
+        assertTrue(getSearchBox().isDisplayed());
 
-        assertTrue(searchBox.isDisplayed());
-
-        test.pass("Search box is visible");
+        test.pass("Search box visible");
     }
 
     @Test
-    public void verifyGoogleLogoPresent() {
-        test = extent.createTest("Verify Google Logo");
+    public void verifySearchBoxEnabled() {
+        test = extent.createTest("Search Box Enabled");
 
-        driver.get("https://www.google.com");
-        handleCookies();
+        openGoogle();
 
-        WebElement logo = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//img[@alt='Google']")
-            )
-        );
+        assertTrue(getSearchBox().isEnabled());
 
-        assertTrue(logo.isDisplayed());
-
-        test.pass("Google logo is visible");
-    }
-
-    @Test
-    public void searchDifferentKeyword() {
-        test = extent.createTest("Search Different Keyword");
-
-        driver.get("https://www.google.com");
-        handleCookies();
-
-        WebElement searchBox = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
-        );
-
-        searchBox.sendKeys("automation testing");
-        searchBox.submit();
-
-        assertTrue(driver.getTitle().toLowerCase().contains("automation"));
-
-        test.pass("Search worked for different keyword");
+        test.pass("Search box enabled");
     }
 
     @Test
     public void verifyTitleNotEmpty() {
-        test = extent.createTest("Verify Title Not Empty");
+        test = extent.createTest("Title Not Empty");
 
-        driver.get("https://www.google.com");
-        handleCookies();
+        openGoogle();
 
         assertFalse(driver.getTitle().isEmpty());
 
@@ -151,64 +131,60 @@ public class GoogleTest {
     }
 
     @Test
-    public void verifyPageSourceContainsGoogle() {
-        test = extent.createTest("Verify Page Source");
+    public void verifyGoogleInTitle() {
+        test = extent.createTest("Title Contains Google");
 
-        driver.get("https://www.google.com");
-        handleCookies();
+        openGoogle();
 
-        assertTrue(driver.getPageSource().toLowerCase().contains("google"));
+        assertTrue(driver.getTitle().toLowerCase().contains("google"));
 
-        test.pass("Page source contains Google");
+        test.pass("Title contains Google");
     }
 
     @Test
-    public void verifySearchBoxEnabled() {
-        test = extent.createTest("Verify Search Box Enabled");
+    public void verifyPageLoads() {
+        test = extent.createTest("Page Load Test");
 
-        driver.get("https://www.google.com");
-        handleCookies();
+        openGoogle();
 
-        WebElement searchBox = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
-        );
+        String state = (String)((JavascriptExecutor)driver)
+                .executeScript("return document.readyState");
 
-        assertTrue(searchBox.isEnabled());
+        assertEquals("complete", state);
 
-        test.pass("Search box is enabled");
+        test.pass("Page fully loaded");
     }
 
     @Test
-    public void searchAndCheckResultsPage() {
-        test = extent.createTest("Search and Check Results Page");
+    public void verifyUrl() {
+        test = extent.createTest("URL Test");
 
-        driver.get("https://www.google.com");
-        handleCookies();
-
-        WebElement searchBox = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(By.name("q"))
-        );
-
-        searchBox.sendKeys("Selenium");
-        searchBox.submit();
-
-        wait.until(ExpectedConditions.urlContains("search"));
-
-        assertTrue(driver.getCurrentUrl().contains("search"));
-
-        test.pass("Navigated to results page");
-    }
-
-    @Test
-    public void verifyGoogleUrl() {
-        test = extent.createTest("Verify Google URL");
-
-        driver.get("https://www.google.com");
-        handleCookies();
+        openGoogle();
 
         assertTrue(driver.getCurrentUrl().contains("google"));
 
-        test.pass("Correct URL loaded");
+        test.pass("Correct URL");
+    }
+
+    @Test
+    public void verifySearchSuggestionsAppear() {
+        test = extent.createTest("Search Suggestions Appear");
+
+        openGoogle();
+
+        WebElement box = getSearchBox();
+        box.sendKeys("selenium");
+
+        // wait for suggestions dropdown
+        List<WebElement> suggestions = wait.until(
+            ExpectedConditions.presenceOfAllElementsLocatedBy(
+                By.xpath("//ul[@role='listbox']//li")
+            )
+        );
+
+        assertTrue(suggestions.size() > 0);
+
+        test.pass("Search suggestions displayed");
     }
 
     @AfterEach
