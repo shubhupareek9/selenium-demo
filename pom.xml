@@ -32,14 +32,14 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- JSON (for reading test data) -->
+        <!-- Jackson (JSON handling - FINAL FIX) -->
         <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.1</version>
         </dependency>
 
-        <!-- WebDriver Manager (auto handles ChromeDriver) -->
+        <!-- WebDriver Manager -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
@@ -51,7 +51,7 @@
     <build>
         <plugins>
 
-            <!-- Compiler Plugin -->
+            <!-- Compiler -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.15.0</version>
@@ -61,7 +61,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Surefire Plugin (runs TestNG tests) -->
+            <!-- TestNG Runner -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
