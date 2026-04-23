@@ -8,7 +8,7 @@ import org.testng.annotations.*;
 
 public class BaseTest {
 
-    protected ebDriver driver;
+    protected WebDriver driver;
 
     @BeforeClass
     public void setup() {
