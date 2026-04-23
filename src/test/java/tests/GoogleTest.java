@@ -13,7 +13,7 @@ import static org.testng.Assert.assertTrue;
 
 public class GoogleTest extends BaseTest {
 
-    // ✅ Test 1: Verify Google page opens
+    // ✅ Test 1: Verifyyy Google page opens
     @Test
     public void test01_openGooglePage() {
         GooglePage google = new GooglePage(driver);
