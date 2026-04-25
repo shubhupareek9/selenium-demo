@@ -11,11 +11,12 @@ public class GooglePage {
     WebDriver driver;
     WebDriverWait wait;
 
-    // ===== Locators =====
+    // ================= LOCATORS =================
+
     private By searchBox = By.name("q");
 
-    // FIXED: robust Google logo locator (SVG + fallback)
-    private By googleLogo = By.cssSelector("img[alt*='Google'], div[aria-label*='Google']");
+    // FIXED: robust Google logo (SVG or IMG fallback)
+    private By googleLogo = By.cssSelector("img, svg");
 
     private By aboutLink = By.linkText("About");
     private By storeLink = By.linkText("Store");
@@ -25,33 +26,37 @@ public class GooglePage {
 
     private By appsGrid = By.cssSelector("a[aria-label='Google apps']");
 
-    // FIXED: more stable selectors
-    private By googleSearchBtn = By.cssSelector("input[value='Google Search']");
-    private By feelingLuckyBtn = By.cssSelector("input[value*='Lucky']");
+    // FIXED: avoid hidden duplicate elements
+    private By googleSearchBtn = By.xpath("//input[@name='btnK' and not(@type='hidden')]");
+    private By feelingLuckyBtn = By.xpath("//input[@name='btnI' and not(@type='hidden')]");
 
-    // ===== Constructor =====
+    // ================= CONSTRUCTOR =================
+
     public GooglePage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    // ===== Open page =====
+    // ================= NAVIGATION =================
+
     public void open() {
         driver.get("https://www.google.com");
 
-        // ensure page is loaded
+        // wait for page load
         wait.until(ExpectedConditions.presenceOfElementLocated(searchBox));
     }
 
-    // ===== Search =====
+    // ================= SEARCH =================
+
     public void search(String text) {
-        WebElement box = wait.until(ExpectedConditions.visibilityOfElementLocated(searchBox));
+        WebElement box = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(searchBox)
+        );
         box.clear();
         box.sendKeys(text);
         box.submit();
     }
 
-    // ===== Search box =====
     public boolean isSearchBoxDisplayed() {
         return driver.findElement(searchBox).isDisplayed();
     }
@@ -60,12 +65,14 @@ public class GooglePage {
         return driver.findElement(searchBox).isEnabled();
     }
 
-    // ===== Title =====
+    // ================= TITLE =================
+
     public String getTitle() {
         return driver.getTitle();
     }
 
-    // ===== Google Logo (FIXED) =====
+    // ================= GOOGLE LOGO (FIXED) =================
+
     public boolean isGoogleLogoDisplayed() {
         try {
             return driver.findElement(googleLogo).isDisplayed();
@@ -74,9 +81,12 @@ public class GooglePage {
         }
     }
 
-    // ===== Top-left =====
+    // ================= TOP LEFT =================
+
     public boolean isAboutDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(aboutLink)).isDisplayed();
+        return wait.until(
+                ExpectedConditions.visibilityOfElementLocated(aboutLink)
+        ).isDisplayed();
     }
 
     public void clickAbout() {
@@ -84,16 +94,21 @@ public class GooglePage {
     }
 
     public boolean isStoreDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(storeLink)).isDisplayed();
+        return wait.until(
+                ExpectedConditions.visibilityOfElementLocated(storeLink)
+        ).isDisplayed();
     }
 
     public void clickStore() {
         wait.until(ExpectedConditions.elementToBeClickable(storeLink)).click();
     }
 
-    // ===== Top-right =====
+    // ================= TOP RIGHT =================
+
     public boolean isGmailDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(gmailLink)).isDisplayed();
+        return wait.until(
+                ExpectedConditions.visibilityOfElementLocated(gmailLink)
+        ).isDisplayed();
     }
 
     public void clickGmail() {
@@ -101,26 +116,34 @@ public class GooglePage {
     }
 
     public boolean isImagesDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(imagesLink)).isDisplayed();
+        return wait.until(
+                ExpectedConditions.visibilityOfElementLocated(imagesLink)
+        ).isDisplayed();
     }
 
     public void clickImages() {
         wait.until(ExpectedConditions.elementToBeClickable(imagesLink)).click();
     }
 
-    // ===== Apps grid =====
+    // ================= APPS GRID =================
+
     public boolean isAppsGridDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(appsGrid)).isDisplayed();
+        return wait.until(
+                ExpectedConditions.visibilityOfElementLocated(appsGrid)
+        ).isDisplayed();
     }
 
     public void clickAppsGrid() {
         wait.until(ExpectedConditions.elementToBeClickable(appsGrid)).click();
     }
 
-    // ===== Buttons (FIXED) =====
+    // ================= BUTTONS (FIXED) =================
+
     public boolean isSearchButtonDisplayed() {
         try {
-            return driver.findElement(googleSearchBtn).isDisplayed();
+            return wait.until(
+                    ExpectedConditions.elementToBeClickable(googleSearchBtn)
+            ).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -128,17 +151,19 @@ public class GooglePage {
 
     public boolean isFeelingLuckyDisplayed() {
         try {
-            return driver.findElement(feelingLuckyBtn).isDisplayed();
+            return wait.until(
+                    ExpectedConditions.elementToBeClickable(feelingLuckyBtn)
+            ).isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
 
-    public void clickFeelingLucky() {
-        wait.until(ExpectedConditions.elementToBeClickable(feelingLuckyBtn)).click();
-    }
-
     public void clickSearchButton() {
         wait.until(ExpectedConditions.elementToBeClickable(googleSearchBtn)).click();
+    }
+
+    public void clickFeelingLucky() {
+        wait.until(ExpectedConditions.elementToBeClickable(feelingLuckyBtn)).click();
     }
 }
