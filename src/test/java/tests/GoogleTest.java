@@ -12,8 +12,11 @@ import static org.testng.Assert.assertTrue;
 
 public class GoogleTest extends BaseTest {
 
-    // ✅ Test 1
-    @Test
+    // =========================
+    // BASIC PAGE LOAD TESTS
+    // =========================
+
+    @Test(description = "Verify Google homepage opens successfully and title contains 'Google'")
     public void test01_openGooglePage() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -22,8 +25,7 @@ public class GoogleTest extends BaseTest {
                 "Google page did not open properly");
     }
 
-    // ✅ Test 2
-    @Test
+    @Test(description = "Verify search box is visible on Google homepage")
     public void test02_searchBoxDisplayed() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -32,8 +34,7 @@ public class GoogleTest extends BaseTest {
                 "Search box is not displayed");
     }
 
-    // ✅ Test 3
-    @Test
+    @Test(description = "Search for a single keyword and verify results page loads correctly")
     public void test03_singleSearch() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -44,7 +45,10 @@ public class GoogleTest extends BaseTest {
                 "Search results not loaded for milk");
     }
 
-    // ✅ DataProvider
+    // =========================
+    // DATA-DRIVEN SEARCH TESTS
+    // =========================
+
     @DataProvider(name = "searchData")
     public Object[] getSearchData() {
         List<String> terms = JsonReader.getSearchTerms(
@@ -53,8 +57,10 @@ public class GoogleTest extends BaseTest {
         return terms.toArray();
     }
 
-    // ✅ Test 4
-    @Test(dataProvider = "searchData")
+    @Test(
+        description = "Perform multiple searches using data from JSON file and verify results",
+        dataProvider = "searchData"
+    )
     public void test04_multipleSearch(String term) {
 
         GooglePage google = new GooglePage(driver);
@@ -69,10 +75,10 @@ public class GoogleTest extends BaseTest {
     }
 
     // =========================
-    // NEW UI TESTS (ADDED)
+    // UI ELEMENT TESTS
     // =========================
 
-    @Test
+    @Test(description = "Verify About and Store links are visible on top-left of Google homepage")
     public void test05_topLeftAboutStore() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -81,7 +87,7 @@ public class GoogleTest extends BaseTest {
         assertTrue(google.isStoreDisplayed(), "Store not visible");
     }
 
-    @Test
+    @Test(description = "Verify Gmail and Images links are visible on top-right of Google homepage")
     public void test06_topRightLinks() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -90,17 +96,17 @@ public class GoogleTest extends BaseTest {
         assertTrue(google.isImagesDisplayed(), "Images not visible");
     }
 
-    @Test
+    @Test(description = "Verify Google Apps grid icon is visible and clickable on homepage")
     public void test07_appsGrid() {
         GooglePage google = new GooglePage(driver);
         google.open();
 
         assertTrue(google.isAppsGridDisplayed(), "Apps grid not visible");
 
-        google.clickAppsGrid(); // verify clickable
+        google.clickAppsGrid();
     }
 
-    @Test
+    @Test(description = "Verify Google logo is displayed correctly on homepage")
     public void test08_googleLogo() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -109,7 +115,7 @@ public class GoogleTest extends BaseTest {
                 "Google logo not visible");
     }
 
-    @Test
+    @Test(description = "Verify Search and I'm Feeling Lucky buttons are visible and clickable")
     public void test09_searchAndFeelingLuckyButtons() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -120,14 +126,14 @@ public class GoogleTest extends BaseTest {
         google.clickFeelingLucky();
     }
 
-    @Test
+    @Test(description = "Verify search box is enabled and Enter key triggers search successfully")
     public void test10_searchBoxEnabledAndEnterKey() {
         GooglePage google = new GooglePage(driver);
         google.open();
 
         assertTrue(google.isSearchBoxEnabled(), "Search box not enabled");
 
-        google.search("selenium"); // already tests Enter/submit behavior
+        google.search("selenium");
         assertTrue(google.getTitle().toLowerCase().contains("selenium"),
                 "Enter key search failed");
     }
