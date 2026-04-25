@@ -15,7 +15,6 @@ public class GooglePage {
 
     private By searchBox = By.name("q");
 
-    // More stable logo check (Google uses SVG in many builds)
     private By googleLogo = By.cssSelector("img[alt*='Google'], svg");
 
     private By aboutLink = By.linkText("About");
@@ -25,9 +24,6 @@ public class GooglePage {
     private By imagesLink = By.linkText("Images");
 
     private By appsGrid = By.cssSelector("a[aria-label='Google apps']");
-
-    // ================= FIXED BUTTON STRATEGY =================
-    // IMPORTANT: Google buttons are unstable in headless → use name + form context
 
     private By googleSearchBtn = By.name("btnK");
     private By feelingLuckyBtn = By.name("btnI");
@@ -46,7 +42,6 @@ public class GooglePage {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(searchBox));
 
-        // Force UI stabilization (CRITICAL for headless Google rendering)
         driver.findElement(searchBox).click();
     }
 
@@ -134,7 +129,6 @@ public class GooglePage {
     }
 
     // ================= SEARCH BUTTON =================
-    // FIX: instead of visibility, check presence (Google hides it in headless)
 
     public boolean isSearchButtonDisplayed() {
         try {
@@ -162,5 +156,16 @@ public class GooglePage {
 
     public void clickSearchButton() {
         wait.until(ExpectedConditions.elementToBeClickable(googleSearchBtn)).click();
+    }
+
+    // ================= FIX ADDED (IMPORTANT) =================
+    // Used by tests to verify search worked reliably in CI/headless
+
+    public boolean isOnResultsPage() {
+        try {
+            return driver.getCurrentUrl().contains("/search");
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
