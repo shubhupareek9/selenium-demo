@@ -13,7 +13,9 @@ public class GooglePage {
 
     // ===== Locators =====
     private By searchBox = By.name("q");
-    private By googleLogo = By.cssSelector("img[alt='Google']");
+
+    // FIXED: robust Google logo locator (SVG + fallback)
+    private By googleLogo = By.cssSelector("img[alt*='Google'], div[aria-label*='Google']");
 
     private By aboutLink = By.linkText("About");
     private By storeLink = By.linkText("Store");
@@ -23,8 +25,9 @@ public class GooglePage {
 
     private By appsGrid = By.cssSelector("a[aria-label='Google apps']");
 
-    private By googleSearchBtn = By.name("btnK");
-    private By feelingLuckyBtn = By.name("btnI");
+    // FIXED: more stable selectors
+    private By googleSearchBtn = By.cssSelector("input[value='Google Search']");
+    private By feelingLuckyBtn = By.cssSelector("input[value*='Lucky']");
 
     // ===== Constructor =====
     public GooglePage(WebDriver driver) {
@@ -36,8 +39,8 @@ public class GooglePage {
     public void open() {
         driver.get("https://www.google.com");
 
-        // wait for search box to ensure page is loaded
-        wait.until(ExpectedConditions.visibilityOfElementLocated(searchBox));
+        // ensure page is loaded
+        wait.until(ExpectedConditions.presenceOfElementLocated(searchBox));
     }
 
     // ===== Search =====
@@ -62,10 +65,10 @@ public class GooglePage {
         return driver.getTitle();
     }
 
-    // ===== Google Logo =====
+    // ===== Google Logo (FIXED) =====
     public boolean isGoogleLogoDisplayed() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(googleLogo)).isDisplayed();
+            return driver.findElement(googleLogo).isDisplayed();
         } catch (Exception e) {
             return false;
         }
@@ -114,13 +117,21 @@ public class GooglePage {
         wait.until(ExpectedConditions.elementToBeClickable(appsGrid)).click();
     }
 
-    // ===== Buttons =====
+    // ===== Buttons (FIXED) =====
     public boolean isSearchButtonDisplayed() {
-        return driver.findElement(googleSearchBtn).isDisplayed();
+        try {
+            return driver.findElement(googleSearchBtn).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean isFeelingLuckyDisplayed() {
-        return driver.findElement(feelingLuckyBtn).isDisplayed();
+        try {
+            return driver.findElement(feelingLuckyBtn).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void clickFeelingLucky() {
