@@ -34,19 +34,23 @@ public class GoogleTest extends BaseTest {
                 "Search box is not displayed");
     }
 
-    @Test(description = "Search for a single keyword and verify results page loads correctly")
+    // =========================
+    // SEARCH TESTS (FIXED)
+    // =========================
+
+    @Test(description = "Search for a single keyword and verify results page is displayed")
     public void test03_singleSearch() {
         GooglePage google = new GooglePage(driver);
         google.open();
 
         google.search("milk");
 
-        assertTrue(google.getTitle().toLowerCase().contains("milk"),
+        assertTrue(google.isOnResultsPage(),
                 "Search results not loaded for milk");
     }
 
     // =========================
-    // DATA-DRIVEN SEARCH TESTS
+    // DATA DRIVEN TEST
     // =========================
 
     @DataProvider(name = "searchData")
@@ -58,7 +62,7 @@ public class GoogleTest extends BaseTest {
     }
 
     @Test(
-        description = "Perform multiple searches using data from JSON file and verify results",
+        description = "Perform multiple searches using JSON data and verify results page loads",
         dataProvider = "searchData"
     )
     public void test04_multipleSearch(String term) {
@@ -68,17 +72,15 @@ public class GoogleTest extends BaseTest {
         google.open();
         google.search(term);
 
-        String title = google.getTitle().toLowerCase();
-
-        assertTrue(title.contains(term.toLowerCase()),
+        assertTrue(google.isOnResultsPage(),
                 "Search failed for: " + term);
     }
 
     // =========================
-    // UI ELEMENT TESTS
+    // UI TESTS
     // =========================
 
-    @Test(description = "Verify About and Store links are visible on top-left of Google homepage")
+    @Test(description = "Verify About and Store links are visible on top-left of homepage")
     public void test05_topLeftAboutStore() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -87,7 +89,7 @@ public class GoogleTest extends BaseTest {
         assertTrue(google.isStoreDisplayed(), "Store not visible");
     }
 
-    @Test(description = "Verify Gmail and Images links are visible on top-right of Google homepage")
+    @Test(description = "Verify Gmail and Images links are visible on top-right of homepage")
     public void test06_topRightLinks() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -96,7 +98,7 @@ public class GoogleTest extends BaseTest {
         assertTrue(google.isImagesDisplayed(), "Images not visible");
     }
 
-    @Test(description = "Verify Google Apps grid icon is visible and clickable on homepage")
+    @Test(description = "Verify Google Apps grid icon is visible and clickable")
     public void test07_appsGrid() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -106,7 +108,7 @@ public class GoogleTest extends BaseTest {
         google.clickAppsGrid();
     }
 
-    @Test(description = "Verify Google logo is displayed correctly on homepage")
+    @Test(description = "Verify Google logo is displayed on homepage")
     public void test08_googleLogo() {
         GooglePage google = new GooglePage(driver);
         google.open();
@@ -134,7 +136,8 @@ public class GoogleTest extends BaseTest {
         assertTrue(google.isSearchBoxEnabled(), "Search box not enabled");
 
         google.search("selenium");
-        assertTrue(google.getTitle().toLowerCase().contains("selenium"),
+
+        assertTrue(google.isOnResultsPage(),
                 "Enter key search failed");
     }
 }
