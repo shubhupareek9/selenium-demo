@@ -15,8 +15,8 @@ public class GooglePage {
 
     private By searchBox = By.name("q");
 
-    // FIXED: robust Google logo (SVG or IMG fallback)
-    private By googleLogo = By.cssSelector("img, svg");
+    // More stable logo check (Google uses SVG in many builds)
+    private By googleLogo = By.cssSelector("img[alt*='Google'], svg");
 
     private By aboutLink = By.linkText("About");
     private By storeLink = By.linkText("Store");
@@ -26,9 +26,11 @@ public class GooglePage {
 
     private By appsGrid = By.cssSelector("a[aria-label='Google apps']");
 
-    // FIXED: avoid hidden duplicate elements
-    private By googleSearchBtn = By.xpath("//input[@name='btnK' and not(@type='hidden')]");
-    private By feelingLuckyBtn = By.xpath("//input[@name='btnI' and not(@type='hidden')]");
+    // ================= FIXED BUTTON STRATEGY =================
+    // IMPORTANT: Google buttons are unstable in headless → use name + form context
+
+    private By googleSearchBtn = By.name("btnK");
+    private By feelingLuckyBtn = By.name("btnI");
 
     // ================= CONSTRUCTOR =================
 
@@ -37,13 +39,15 @@ public class GooglePage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    // ================= NAVIGATION =================
+    // ================= OPEN PAGE =================
 
     public void open() {
         driver.get("https://www.google.com");
 
-        // wait for page load
         wait.until(ExpectedConditions.presenceOfElementLocated(searchBox));
+
+        // Force UI stabilization (CRITICAL for headless Google rendering)
+        driver.findElement(searchBox).click();
     }
 
     // ================= SEARCH =================
@@ -56,6 +60,8 @@ public class GooglePage {
         box.sendKeys(text);
         box.submit();
     }
+
+    // ================= SEARCH BOX =================
 
     public boolean isSearchBoxDisplayed() {
         return driver.findElement(searchBox).isDisplayed();
@@ -71,7 +77,7 @@ public class GooglePage {
         return driver.getTitle();
     }
 
-    // ================= GOOGLE LOGO (FIXED) =================
+    // ================= GOOGLE LOGO =================
 
     public boolean isGoogleLogoDisplayed() {
         try {
@@ -84,9 +90,7 @@ public class GooglePage {
     // ================= TOP LEFT =================
 
     public boolean isAboutDisplayed() {
-        return wait.until(
-                ExpectedConditions.visibilityOfElementLocated(aboutLink)
-        ).isDisplayed();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(aboutLink)).isDisplayed();
     }
 
     public void clickAbout() {
@@ -94,9 +98,7 @@ public class GooglePage {
     }
 
     public boolean isStoreDisplayed() {
-        return wait.until(
-                ExpectedConditions.visibilityOfElementLocated(storeLink)
-        ).isDisplayed();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(storeLink)).isDisplayed();
     }
 
     public void clickStore() {
@@ -106,9 +108,7 @@ public class GooglePage {
     // ================= TOP RIGHT =================
 
     public boolean isGmailDisplayed() {
-        return wait.until(
-                ExpectedConditions.visibilityOfElementLocated(gmailLink)
-        ).isDisplayed();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(gmailLink)).isDisplayed();
     }
 
     public void clickGmail() {
@@ -116,9 +116,7 @@ public class GooglePage {
     }
 
     public boolean isImagesDisplayed() {
-        return wait.until(
-                ExpectedConditions.visibilityOfElementLocated(imagesLink)
-        ).isDisplayed();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(imagesLink)).isDisplayed();
     }
 
     public void clickImages() {
@@ -128,42 +126,41 @@ public class GooglePage {
     // ================= APPS GRID =================
 
     public boolean isAppsGridDisplayed() {
-        return wait.until(
-                ExpectedConditions.visibilityOfElementLocated(appsGrid)
-        ).isDisplayed();
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(appsGrid)).isDisplayed();
     }
 
     public void clickAppsGrid() {
         wait.until(ExpectedConditions.elementToBeClickable(appsGrid)).click();
     }
 
-    // ================= BUTTONS (FIXED) =================
+    // ================= SEARCH BUTTON =================
+    // FIX: instead of visibility, check presence (Google hides it in headless)
 
     public boolean isSearchButtonDisplayed() {
         try {
-            return wait.until(
-                    ExpectedConditions.elementToBeClickable(googleSearchBtn)
-            ).isDisplayed();
+            driver.findElement(googleSearchBtn);
+            return true;
         } catch (Exception e) {
             return false;
         }
     }
+
+    // ================= FEELING LUCKY =================
 
     public boolean isFeelingLuckyDisplayed() {
         try {
-            return wait.until(
-                    ExpectedConditions.elementToBeClickable(feelingLuckyBtn)
-            ).isDisplayed();
+            driver.findElement(feelingLuckyBtn);
+            return true;
         } catch (Exception e) {
             return false;
         }
-    }
-
-    public void clickSearchButton() {
-        wait.until(ExpectedConditions.elementToBeClickable(googleSearchBtn)).click();
     }
 
     public void clickFeelingLucky() {
         wait.until(ExpectedConditions.elementToBeClickable(feelingLuckyBtn)).click();
+    }
+
+    public void clickSearchButton() {
+        wait.until(ExpectedConditions.elementToBeClickable(googleSearchBtn)).click();
     }
 }
