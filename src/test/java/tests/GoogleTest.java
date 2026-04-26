@@ -199,4 +199,23 @@ public class GoogleTest extends BaseTest {
         assertTrue(google.isOnResultsPage(),
                 "Enter key search failed");
     }
+    @Test(description = "Verify Google handles special character search input without errors")
+public void test11_specialCharacterSearch() {
+
+    Reporter.log("Step 1: Open Google homepage", true);
+
+    GooglePage google = new GooglePage(driver);
+    google.open();
+
+    String specialInput = ")(*()(&*(&(*&*^&%^&*^((&&&)(*)(*)";
+
+    Reporter.log("Step 2: Enter special character search: " + specialInput, true);
+
+    google.search(specialInput);
+
+    Reporter.log("Step 3: Verify application does not crash and results page loads", true);
+
+    assertTrue(google.isOnResultsPage(),
+            "Search with special characters did not navigate to results page");
+}
 }
