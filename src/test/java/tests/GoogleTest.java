@@ -5,6 +5,7 @@ import org.testng.Reporter;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import pages.GooglePage;
+import pages.GoogleResultsPage;
 import utils.JsonReader;
 
 import java.util.List;
@@ -199,23 +200,66 @@ public class GoogleTest extends BaseTest {
         assertTrue(google.isOnResultsPage(),
                 "Enter key search failed");
     }
+
     @Test(description = "Verify Google handles special character search input without errors")
-public void test11_specialCharacterSearch() {
+    public void test11_specialCharacterSearch() {
 
-    Reporter.log("Step 1: Open Google homepage", true);
+        Reporter.log("Step 1: Open Google homepage", true);
 
-    GooglePage google = new GooglePage(driver);
-    google.open();
+        GooglePage google = new GooglePage(driver);
+        google.open();
 
-    String specialInput = ")(*()(&*(&(*&*^&%^&*^((&&&)(*)(*)";
+        String specialInput = ")(*()(&*(&(*&*^&%^&*^((&&&)(*)(*)";
 
-    Reporter.log("Step 2: Enter special character search: " + specialInput, true);
+        Reporter.log("Step 2: Enter special character search: " + specialInput, true);
 
-    google.search(specialInput);
+        google.search(specialInput);
 
-    Reporter.log("Step 3: Verify application does not crash and results page loads", true);
+        Reporter.log("Step 3: Verify application does not crash and results page loads", true);
 
-    assertTrue(google.isOnResultsPage(),
-            "Search with special characters did not navigate to results page");
-}
+        assertTrue(google.isOnResultsPage(),
+                "Search with special characters did not navigate to results page");
+    }
+
+    // =========================
+    // NEW TEST (RESULT PAGE TABS)
+    // =========================
+
+    @Test(description = "Search 'apples' and verify result page tabs are clickable")
+    public void test12_verifyResultPageTabsClickable() {
+
+        Reporter.log("Step 1: Open Google homepage", true);
+
+        GooglePage google = new GooglePage(driver);
+        google.open();
+
+        Reporter.log("Step 2: Search for 'apples'", true);
+        google.search("apples");
+
+        Reporter.log("Step 3: Initialize Results Page", true);
+        GoogleResultsPage results = new GoogleResultsPage(driver);
+
+        String[] tabs = {"All", "Shopping", "Videos", "Images", "News"};
+
+        for (String tab : tabs) {
+
+            Reporter.log("Step 4: Verify tab exists -> " + tab, true);
+            assertTrue(results.isTabPresent(tab),
+                    tab + " tab not present");
+
+            Reporter.log("Step 5: Click tab -> " + tab, true);
+            results.clickTab(tab);
+
+            Reporter.log("Step 6: Verify navigation after clicking -> " + tab, true);
+            assertTrue(driver.getCurrentUrl().contains("google"),
+                    "Navigation failed for tab: " + tab);
+        }
+
+        Reporter.log("Step 7: Verify Tools button is visible", true);
+        assertTrue(results.isToolsDisplayed(),
+                "Tools button not visible");
+
+        Reporter.log("Step 8: Click Tools button", true);
+        results.clickTools();
+    }
 }
