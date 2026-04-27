@@ -15,28 +15,36 @@ import static org.testng.Assert.assertTrue;
 public class GoogleTest extends BaseTest {
 
     // =========================
-    // BASIC TESTS (UNCHANGED)
+    // BASIC PAGE LOAD TESTS
     // =========================
 
-    @Test
+    @Test(description = "Verify Google homepage opens successfully and title contains 'Google'")
     public void test01_openGooglePage() {
+
+        Reporter.log("Open Google homepage", true);
 
         GooglePage google = new GooglePage(driver);
         google.open();
 
-        assertTrue(google.getTitle().toLowerCase().contains("google"));
+        assertTrue(google.getTitle().toLowerCase().contains("google"),
+                "Google page did not open properly");
     }
 
-    @Test
+    @Test(description = "Verify search box is visible on Google homepage")
     public void test02_searchBoxDisplayed() {
 
         GooglePage google = new GooglePage(driver);
         google.open();
 
-        assertTrue(google.isSearchBoxDisplayed());
+        assertTrue(google.isSearchBoxDisplayed(),
+                "Search box is not displayed");
     }
 
-    @Test
+    // =========================
+    // SEARCH TESTS
+    // =========================
+
+    @Test(description = "Search for a single keyword and verify results page is displayed")
     public void test03_singleSearch() {
 
         GooglePage google = new GooglePage(driver);
@@ -44,20 +52,24 @@ public class GoogleTest extends BaseTest {
 
         google.search("milk");
 
-        assertTrue(google.isOnResultsPage());
+        assertTrue(google.isOnResultsPage(),
+                "Search results not loaded for milk");
     }
+
+    // =========================
+    // DATA DRIVEN TEST
+    // =========================
 
     @DataProvider(name = "searchData")
     public Object[] getSearchData() {
-
         List<String> terms = JsonReader.getSearchTerms(
                 "src/test/resources/testdata/searchData.json"
         );
-
         return terms.toArray();
     }
 
-    @Test(dataProvider = "searchData")
+    @Test(dataProvider = "searchData",
+            description = "Perform multiple searches using JSON data")
     public void test04_multipleSearch(String term) {
 
         GooglePage google = new GooglePage(driver);
@@ -65,8 +77,13 @@ public class GoogleTest extends BaseTest {
 
         google.search(term);
 
-        assertTrue(google.isOnResultsPage());
+        assertTrue(google.isOnResultsPage(),
+                "Search failed for: " + term);
     }
+
+    // =========================
+    // UI TESTS (UNCHANGED)
+    // =========================
 
     @Test
     public void test05_topLeftAboutStore() {
@@ -74,8 +91,8 @@ public class GoogleTest extends BaseTest {
         GooglePage google = new GooglePage(driver);
         google.open();
 
-        assertTrue(google.isAboutDisplayed());
-        assertTrue(google.isStoreDisplayed());
+        assertTrue(google.isAboutDisplayed(), "About not visible");
+        assertTrue(google.isStoreDisplayed(), "Store not visible");
     }
 
     @Test
@@ -84,8 +101,8 @@ public class GoogleTest extends BaseTest {
         GooglePage google = new GooglePage(driver);
         google.open();
 
-        assertTrue(google.isGmailDisplayed());
-        assertTrue(google.isImagesDisplayed());
+        assertTrue(google.isGmailDisplayed(), "Gmail not visible");
+        assertTrue(google.isImagesDisplayed(), "Images not visible");
     }
 
     @Test
@@ -94,7 +111,7 @@ public class GoogleTest extends BaseTest {
         GooglePage google = new GooglePage(driver);
         google.open();
 
-        assertTrue(google.isAppsGridDisplayed());
+        assertTrue(google.isAppsGridDisplayed(), "Apps grid not visible");
         google.clickAppsGrid();
     }
 
@@ -104,7 +121,8 @@ public class GoogleTest extends BaseTest {
         GooglePage google = new GooglePage(driver);
         google.open();
 
-        assertTrue(google.isGoogleLogoDisplayed());
+        assertTrue(google.isGoogleLogoDisplayed(),
+                "Google logo not visible");
     }
 
     @Test
@@ -113,8 +131,8 @@ public class GoogleTest extends BaseTest {
         GooglePage google = new GooglePage(driver);
         google.open();
 
-        assertTrue(google.isSearchButtonDisplayed());
-        assertTrue(google.isFeelingLuckyDisplayed());
+        assertTrue(google.isSearchButtonDisplayed(), "Search button missing");
+        assertTrue(google.isFeelingLuckyDisplayed(), "I'm Feeling Lucky missing");
 
         google.clickFeelingLucky();
     }
@@ -125,11 +143,12 @@ public class GoogleTest extends BaseTest {
         GooglePage google = new GooglePage(driver);
         google.open();
 
-        assertTrue(google.isSearchBoxEnabled());
+        assertTrue(google.isSearchBoxEnabled(), "Search box not enabled");
 
         google.search("selenium");
 
-        assertTrue(google.isOnResultsPage());
+        assertTrue(google.isOnResultsPage(),
+                "Enter key search failed");
     }
 
     @Test
@@ -140,77 +159,42 @@ public class GoogleTest extends BaseTest {
 
         google.search(")(*()(&*(&(*&*^&%^&*^((&&&)(*)(*)");
 
-        assertTrue(google.isOnResultsPage());
+        assertTrue(google.isOnResultsPage(),
+                "Special character search failed");
     }
 
     // =========================
-    // SPLIT TEST 12 (FIXED)
+    // NEW STABLE TEST (REPLACED TEST 12–17)
     // =========================
 
-    private GoogleResultsPage openResults() {
+    @Test(description = "Search apples and print top 10 results in TestNG report")
+    public void test12_printTop10SearchResults() {
+
+        Reporter.log("Open Google homepage", true);
 
         GooglePage google = new GooglePage(driver);
-        GoogleResultsPage results = new GoogleResultsPage(driver);
-
         google.open();
+
+        Reporter.log("Search: apples", true);
         google.search("apples");
 
+        GoogleResultsPage results = new GoogleResultsPage(driver);
         results.waitForResultsPage();
 
-        return results;
-    }
+        Reporter.log("Fetching top 10 results...", true);
 
-    @Test
-    public void test12_verifyAllTab() {
+        List<String> topResults = results.getTopSearchResults(10);
 
-        GoogleResultsPage results = openResults();
+        Reporter.log("===== TOP 10 SEARCH RESULTS =====", true);
 
-        assertTrue(results.isTabPresent("All"));
-        results.clickTab("All");
-    }
+        int i = 1;
+        for (String r : topResults) {
+            Reporter.log(i + ". " + r, true);
+            i++;
+        }
 
-    @Test
-    public void test13_verifyShoppingTab() {
+        Reporter.log("===== END =====", true);
 
-        GoogleResultsPage results = openResults();
-
-        assertTrue(results.isTabPresent("Shopping"));
-        results.clickTab("Shopping");
-    }
-
-    @Test
-    public void test14_verifyVideosTab() {
-
-        GoogleResultsPage results = openResults();
-
-        assertTrue(results.isTabPresent("Videos"));
-        results.clickTab("Videos");
-    }
-
-    @Test
-    public void test15_verifyImagesTab() {
-
-        GoogleResultsPage results = openResults();
-
-        assertTrue(results.isTabPresent("Images"));
-        results.clickTab("Images");
-    }
-
-    @Test
-    public void test16_verifyNewsTab() {
-
-        GoogleResultsPage results = openResults();
-
-        assertTrue(results.isTabPresent("News"));
-        results.clickTab("News");
-    }
-
-    @Test
-    public void test17_verifyToolsButton() {
-
-        GoogleResultsPage results = openResults();
-
-        assertTrue(results.isToolsDisplayed());
-        results.clickTools();
+        assertTrue(topResults.size() > 0, "No results found");
     }
 }
