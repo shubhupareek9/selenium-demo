@@ -16,25 +16,33 @@ public class GoogleResultsPage {
     public GoogleResultsPage(WebDriver driver) {
         this.driver = driver;
         // Increased timeout for robustness
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(45));  // 45 seconds timeout
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(60));  // 60 seconds timeout for slower responses
     }
 
     // =========================
     // ROBUST WAIT FOR RESULTS
     // =========================
     public void waitForResultsPage() {
-        wait.until(driver -> {
-            try {
-                // Checking for two things:
-                // 1. If 'div#rso' is present (main search results container)
-                // 2. If the URL contains '/search' (to ensure we are on the search results page)
-                return driver.getCurrentUrl().contains("/search") &&
-                       (driver.findElements(By.cssSelector("div#rso")).size() > 0
-                        || driver.findElements(By.cssSelector("h3")).size() > 0);
-            } catch (Exception e) {
-                return false;
-            }
-        });
+        try {
+            wait.until(driver -> {
+                // Ensure the page URL contains '/search' and that at least some search results are present
+                boolean isOnSearchPage = driver.getCurrentUrl().contains("/search");
+                boolean hasResults = !driver.findElements(By.cssSelector("div#rso")).isEmpty() || !driver.findElements(By.cssSelector("h3")).isEmpty();
+                boolean hasResultsLinks = !driver.findElements(By.cssSelector("div#rso a")).isEmpty();  // Ensure there are anchor links in the results
+                boolean isPageLoaded = isOnSearchPage && (hasResults || hasResultsLinks);
+
+                // Log the page status
+                Reporter.log("Page URL: " + driver.getCurrentUrl(), true);
+                Reporter.log("Is on search page: " + isOnSearchPage, true);
+                Reporter.log("Has results container: " + hasResults, true);
+                Reporter.log("Has result links: " + hasResultsLinks, true);
+
+                return isPageLoaded;
+            });
+        } catch (TimeoutException e) {
+            Reporter.log("Timeout occurred while waiting for results page to load.", true);
+            throw e; // Re-throw to indicate test failure
+        }
     }
 
     // =========================
@@ -54,7 +62,6 @@ public class GoogleResultsPage {
         List<String> results = new ArrayList<>();
 
         for (WebElement el : elements) {
-
             String text = el.getText().trim();
 
             if (!text.isEmpty()) {
@@ -64,6 +71,12 @@ public class GoogleResultsPage {
             if (results.size() == limit) {
                 break;
             }
+        }
+
+        // Log the collected results for debugging
+        Reporter.log("Top " + results.size() + " search results:", true);
+        for (String result : results) {
+            Reporter.log(result, true);
         }
 
         return results;
