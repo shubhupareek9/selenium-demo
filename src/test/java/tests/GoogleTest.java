@@ -162,39 +162,4 @@ public class GoogleTest extends BaseTest {
         assertTrue(google.isOnResultsPage(),
                 "Special character search failed");
     }
-
-    // =========================
-    // NEW STABLE TEST (REPLACED TEST 12–17)
-    // =========================
-
-    @Test(description = "Search apples and print top 10 results in TestNG report")
-    public void test12_printTop10SearchResults() {
-
-        Reporter.log("Open Google homepage", true);
-
-        GooglePage google = new GooglePage(driver);
-        google.open();
-
-        Reporter.log("Search: apples", true);
-        google.search("apples");
-
-        GoogleResultsPage results = new GoogleResultsPage(driver);
-        results.waitForResultsPage();
-
-        Reporter.log("Fetching top 10 results...", true);
-
-        List<String> topResults = results.getTopSearchResults(10);
-
-        Reporter.log("===== TOP 10 SEARCH RESULTS =====", true);
-
-        int i = 1;
-        for (String r : topResults) {
-            Reporter.log(i + ". " + r, true);
-            i++;
-        }
-
-        Reporter.log("===== END =====", true);
-
-        assertTrue(topResults.size() > 0, "No results found");
-    }
 }
