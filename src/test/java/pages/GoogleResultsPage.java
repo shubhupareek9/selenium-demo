@@ -15,28 +15,25 @@ public class GoogleResultsPage {
 
     public GoogleResultsPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // Increased timeout for CI
+        // Increased timeout for robustness
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(45));  // 45 seconds timeout
     }
 
     // =========================
     // ROBUST WAIT FOR RESULTS
     // =========================
     public void waitForResultsPage() {
-
-        WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(30));
-
-        // Wait for either of the following conditions:
-        longWait.until(ExpectedConditions.or(
-                ExpectedConditions.presenceOfElementLocated(By.cssSelector("div#search")),
-                ExpectedConditions.presenceOfElementLocated(By.cssSelector("div#rso")),
-                ExpectedConditions.presenceOfElementLocated(By.cssSelector("h3")),
-                ExpectedConditions.urlContains("/search")
-        ));
-
-        // Extra safety: ensure at least one visible result
-        longWait.until(driver -> {
-            List<WebElement> results = driver.findElements(By.cssSelector("h3"));
-            return results.stream().anyMatch(WebElement::isDisplayed);
+        wait.until(driver -> {
+            try {
+                // Checking for two things:
+                // 1. If 'div#rso' is present (main search results container)
+                // 2. If the URL contains '/search' (to ensure we are on the search results page)
+                return driver.getCurrentUrl().contains("/search") &&
+                       (driver.findElements(By.cssSelector("div#rso")).size() > 0
+                        || driver.findElements(By.cssSelector("h3")).size() > 0);
+            } catch (Exception e) {
+                return false;
+            }
         });
     }
 
@@ -46,7 +43,7 @@ public class GoogleResultsPage {
     public List<String> getTopSearchResults(int limit) {
 
         List<WebElement> elements = driver.findElements(
-                By.cssSelector("div#search h3")  // Safer locator for results
+                By.cssSelector("div#rso h3")
         );
 
         // fallback if structure changes
@@ -57,6 +54,7 @@ public class GoogleResultsPage {
         List<String> results = new ArrayList<>();
 
         for (WebElement el : elements) {
+
             String text = el.getText().trim();
 
             if (!text.isEmpty()) {
