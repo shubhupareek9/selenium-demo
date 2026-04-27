@@ -3,74 +3,62 @@ package pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GoogleResultsPage {
 
     private WebDriver driver;
-    private WebDriverWait wait;
 
     public GoogleResultsPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    // More stable than role=navigation
-    private By resultsContainer = By.id("search");
+    // Stable result page indicators (Google changes DOM often → use fallback)
+    private By resultsRoot = By.cssSelector("div#search, div#rso");
 
-    private By topMenuItems = By.xpath("//div[@role='navigation']//a");
+    private By topNavItems = By.xpath("//div[@role='navigation']//a");
 
     private By toolsButton = By.xpath("//div[text()='Tools' or @aria-label='Tools']");
 
     // =========================
-    // WAIT FOR RESULTS PAGE
+    // SAFE WAIT METHOD
     // =========================
-    public boolean waitForResultsPage() {
-        try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(resultsContainer));
-            return true;
-        } catch (Exception e) {
-            return false;
+    public void waitForResultsPage() {
+
+        for (int i = 0; i < 20; i++) { // simple retry loop instead of flaky wait
+            if (driver.findElements(resultsRoot).size() > 0) {
+                return;
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {}
         }
+
+        throw new RuntimeException("Google results page not loaded properly");
     }
 
     // =========================
-    // MENU ELEMENTS
+    // TABS
     // =========================
-    private List<WebElement> getMenuElements() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(resultsContainer));
-        return driver.findElements(topMenuItems);
-    }
-
-    public List<String> getTopMenuOptions() {
-        return getMenuElements()
-                .stream()
-                .map(e -> e.getText().trim())
-                .filter(t -> !t.isEmpty())
-                .collect(Collectors.toList());
-    }
-
     public boolean isTabPresent(String tabName) {
-        return getTopMenuOptions()
-                .stream()
-                .anyMatch(tab -> tab.toLowerCase().contains(tabName.toLowerCase()));
+
+        List<WebElement> tabs = driver.findElements(topNavItems);
+
+        return tabs.stream()
+                .anyMatch(t -> t.getText().toLowerCase().contains(tabName.toLowerCase()));
     }
 
     public void clickTab(String tabName) {
-        List<WebElement> tabs = getMenuElements();
+
+        List<WebElement> tabs = driver.findElements(topNavItems);
 
         for (WebElement tab : tabs) {
-            String text = tab.getText().trim();
+            String text = tab.getText().toLowerCase();
 
-            if (text.equalsIgnoreCase(tabName) ||
-                text.toLowerCase().contains(tabName.toLowerCase())) {
-
-                wait.until(ExpectedConditions.elementToBeClickable(tab)).click();
+            if (text.contains(tabName.toLowerCase())) {
+                tab.click();
                 return;
             }
         }
@@ -79,17 +67,13 @@ public class GoogleResultsPage {
     }
 
     // =========================
-    // TOOLS BUTTON
+    // TOOLS
     // =========================
     public boolean isToolsDisplayed() {
-        try {
-            return driver.findElement(toolsButton).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+        return driver.findElements(toolsButton).size() > 0;
     }
 
     public void clickTools() {
-        wait.until(ExpectedConditions.elementToBeClickable(toolsButton)).click();
+        driver.findElement(toolsButton).click();
     }
 }
