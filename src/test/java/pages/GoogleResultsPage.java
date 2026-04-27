@@ -15,26 +15,37 @@ public class GoogleResultsPage {
 
     public GoogleResultsPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
     // =========================
-    // WAIT FOR RESULTS PAGE
+    // ROBUST WAIT FOR RESULTS
     // =========================
     public void waitForResultsPage() {
-        wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.cssSelector("div#search")
-        ));
+
+        wait.until(driver -> {
+            try {
+                return driver.findElements(By.cssSelector("div#rso")).size() > 0
+                        || driver.findElements(By.cssSelector("h3")).size() > 0;
+            } catch (Exception e) {
+                return false;
+            }
+        });
     }
 
     // =========================
-    // GET TOP SEARCH RESULTS
+    // GET TOP RESULTS (ROBUST)
     // =========================
     public List<String> getTopSearchResults(int limit) {
 
         List<WebElement> elements = driver.findElements(
-                By.cssSelector("div#search h3")
+                By.cssSelector("div#rso h3")
         );
+
+        // fallback if structure changes
+        if (elements.isEmpty()) {
+            elements = driver.findElements(By.tagName("h3"));
+        }
 
         List<String> results = new ArrayList<>();
 
