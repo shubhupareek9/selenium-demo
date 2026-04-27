@@ -225,7 +225,7 @@ public class GoogleTest extends BaseTest {
     // NEW TEST (RESULT PAGE TABS)
     // =========================
 
-    @Test(description = "Search 'apples' and verify result page tabs are clickable")
+ @Test(description = "Search 'apples' and verify result page tabs are clickable")
 public void test12_verifyResultPageTabsClickable() {
 
     Reporter.log("Step 1: Open Google homepage", true);
@@ -236,33 +236,38 @@ public void test12_verifyResultPageTabsClickable() {
     Reporter.log("Step 2: Search for 'apples'", true);
     google.search("apples");
 
-    Reporter.log("Step 3: Initialize Results Page & wait", true);
+    Reporter.log("Step 3: Initialize Results Page");
     GoogleResultsPage results = new GoogleResultsPage(driver);
 
-    assertTrue(results.waitForResultsPage(),
-            "Results page did not load properly");
+    // ✅ FIX: proper wait (no Selenium timeout dependency)
+    results.waitForResultsPage();
 
     String[] tabs = {"All", "Shopping", "Videos", "Images", "News"};
 
     for (String tab : tabs) {
 
         Reporter.log("Step 4: Verify tab -> " + tab, true);
+
         assertTrue(results.isTabPresent(tab),
                 tab + " tab not present");
 
         Reporter.log("Step 5: Click tab -> " + tab, true);
+
         results.clickTab(tab);
 
         Reporter.log("Step 6: Validate navigation", true);
+
         assertTrue(driver.getCurrentUrl().contains("google"),
                 "Navigation failed for tab: " + tab);
     }
 
     Reporter.log("Step 7: Verify Tools button", true);
+
     assertTrue(results.isToolsDisplayed(),
             "Tools button not visible");
 
-    Reporter.log("Step 8: Click Tools", true);
+    Reporter.log("Step 8: Click Tools button");
+
     results.clickTools();
 }
 }
