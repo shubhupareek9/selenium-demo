@@ -15,7 +15,7 @@ public class GoogleResultsPage {
 
     public GoogleResultsPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // Increased timeout for CI
     }
 
     // =========================
@@ -23,13 +23,20 @@ public class GoogleResultsPage {
     // =========================
     public void waitForResultsPage() {
 
-        wait.until(driver -> {
-            try {
-                return driver.findElements(By.cssSelector("div#rso")).size() > 0
-                        || driver.findElements(By.cssSelector("h3")).size() > 0;
-            } catch (Exception e) {
-                return false;
-            }
+        WebDriverWait longWait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
+        // Wait for either of the following conditions:
+        longWait.until(ExpectedConditions.or(
+                ExpectedConditions.presenceOfElementLocated(By.cssSelector("div#search")),
+                ExpectedConditions.presenceOfElementLocated(By.cssSelector("div#rso")),
+                ExpectedConditions.presenceOfElementLocated(By.cssSelector("h3")),
+                ExpectedConditions.urlContains("/search")
+        ));
+
+        // Extra safety: ensure at least one visible result
+        longWait.until(driver -> {
+            List<WebElement> results = driver.findElements(By.cssSelector("h3"));
+            return results.stream().anyMatch(WebElement::isDisplayed);
         });
     }
 
@@ -39,7 +46,7 @@ public class GoogleResultsPage {
     public List<String> getTopSearchResults(int limit) {
 
         List<WebElement> elements = driver.findElements(
-                By.cssSelector("div#rso h3")
+                By.cssSelector("div#search h3")  // Safer locator for results
         );
 
         // fallback if structure changes
@@ -50,7 +57,6 @@ public class GoogleResultsPage {
         List<String> results = new ArrayList<>();
 
         for (WebElement el : elements) {
-
             String text = el.getText().trim();
 
             if (!text.isEmpty()) {
