@@ -2,71 +2,117 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.List;
 
 public class GoogleResultsPage {
 
     private WebDriver driver;
+    private WebDriverWait wait;
 
     public GoogleResultsPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    // Stable result indicators (Google varies DOM, so use multiple fallbacks)
+    // =========================
+    // LOCATORS
+    // =========================
     private By searchResults = By.id("search");
     private By resultsRoot = By.id("rso");
 
-    private By topNavItems = By.xpath("//div[@role='navigation']//a");
+    private By topNavItems = By.cssSelector("div[role='navigation'] a");
 
     private By toolsButton = By.xpath("//div[text()='Tools' or @aria-label='Tools']");
 
     // =========================
-    // FIXED: BOOLEAN WAIT METHOD
+    // WAIT FOR RESULTS PAGE
     // =========================
     public boolean waitForResultsPage() {
+        try {
+            wait.until(driver ->
+                    driver.findElements(searchResults).size() > 0 ||
+                    driver.findElements(resultsRoot).size() > 0
+            );
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
-        for (int i = 0; i < 20; i++) {
+    // =========================
+    // TAB VALIDATION (ROBUST)
+    // =========================
+    public boolean isTabPresent(String tabName) {
 
-            if (driver.findElements(searchResults).size() > 0 ||
-                driver.findElements(resultsRoot).size() > 0) {
-                return true;
+        try {
+            // Wait until navigation bar is present
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(topNavItems));
+
+            List<WebElement> tabs = driver.findElements(topNavItems);
+
+            for (WebElement tab : tabs) {
+
+                // Visible text
+                String text = tab.getText().trim();
+
+                if (!text.isEmpty() && text.equalsIgnoreCase(tabName)) {
+                    return true;
+                }
+
+                // Fallback: aria-label (important for Google)
+                String aria = tab.getAttribute("aria-label");
+                if (aria != null && aria.equalsIgnoreCase(tabName)) {
+                    return true;
+                }
             }
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ignored) {}
-        }
+        } catch (Exception ignored) {}
 
         return false;
     }
 
     // =========================
-    // TABS
+    // CLICK TAB (ROBUST)
     // =========================
-    public boolean isTabPresent(String tabName) {
-
-        return driver.findElements(topNavItems)
-                .stream()
-                .anyMatch(e -> e.getText().toLowerCase().contains(tabName.toLowerCase()));
-    }
-
     public void clickTab(String tabName) {
 
-        driver.findElements(topNavItems)
-                .stream()
-                .filter(e -> e.getText().toLowerCase().contains(tabName.toLowerCase()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Tab not found: " + tabName))
-                .click();
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(topNavItems));
+
+        List<WebElement> tabs = driver.findElements(topNavItems);
+
+        for (WebElement tab : tabs) {
+
+            String text = tab.getText().trim();
+            String aria = tab.getAttribute("aria-label");
+
+            if ((text != null && text.equalsIgnoreCase(tabName)) ||
+                (aria != null && aria.equalsIgnoreCase(tabName))) {
+
+                wait.until(ExpectedConditions.elementToBeClickable(tab)).click();
+                return;
+            }
+        }
+
+        throw new RuntimeException("Tab not found: " + tabName);
     }
 
     // =========================
     // TOOLS
     // =========================
     public boolean isToolsDisplayed() {
-        return driver.findElements(toolsButton).size() > 0;
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(toolsButton)).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void clickTools() {
-        driver.findElement(toolsButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(toolsButton)).click();
     }
 }
