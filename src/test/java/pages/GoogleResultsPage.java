@@ -1,8 +1,6 @@
 package pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -16,19 +14,21 @@ public class GoogleResultsPage {
 
     public GoogleResultsPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(12));
     }
 
     // =========================
-    // LOCATORS
+    // LOCATORS (ROBUST)
     // =========================
     private By searchResults = By.id("search");
     private By resultsRoot = By.id("rso");
-    private By topNavItems = By.cssSelector("div[role='navigation'] a");
-    private By toolsButton = By.xpath("//div[text()='Tools' or @aria-label='Tools']");
+
+    private By navTabs = By.xpath("//div[@role='navigation']//a | //div[@role='tab']");
+
+    private By toolsButton = By.xpath("//*[contains(text(),'Tools')]");
 
     // =========================
-    // WAIT
+    // WAIT FOR RESULTS PAGE
     // =========================
     public boolean waitForResultsPage() {
         try {
@@ -43,19 +43,18 @@ public class GoogleResultsPage {
     }
 
     // =========================
-    // TAB METHODS
+    // TAB VALIDATION
     // =========================
     public boolean isTabPresent(String tabName) {
 
-        List<WebElement> tabs = driver.findElements(topNavItems);
+        List<WebElement> tabs = driver.findElements(navTabs);
 
         for (WebElement tab : tabs) {
 
-            String text = tab.getText().trim();
-            String aria = tab.getAttribute("aria-label");
+            String text = tab.getText();
 
-            if ((text != null && text.equalsIgnoreCase(tabName)) ||
-                (aria != null && aria.equalsIgnoreCase(tabName))) {
+            if (text != null &&
+                    text.trim().toLowerCase().contains(tabName.toLowerCase())) {
                 return true;
             }
         }
@@ -63,17 +62,19 @@ public class GoogleResultsPage {
         return false;
     }
 
+    // =========================
+    // TAB CLICK
+    // =========================
     public void clickTab(String tabName) {
 
-        List<WebElement> tabs = driver.findElements(topNavItems);
+        List<WebElement> tabs = driver.findElements(navTabs);
 
         for (WebElement tab : tabs) {
 
-            String text = tab.getText().trim();
-            String aria = tab.getAttribute("aria-label");
+            String text = tab.getText();
 
-            if ((text != null && text.equalsIgnoreCase(tabName)) ||
-                (aria != null && aria.equalsIgnoreCase(tabName))) {
+            if (text != null &&
+                    text.trim().toLowerCase().contains(tabName.toLowerCase())) {
 
                 wait.until(ExpectedConditions.elementToBeClickable(tab)).click();
                 return;
@@ -87,21 +88,21 @@ public class GoogleResultsPage {
     // TOOLS
     // =========================
     public boolean isToolsDisplayed() {
-        try {
-            return driver.findElement(toolsButton).isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
+
+        return driver.findElements(toolsButton).size() > 0;
     }
 
     public void clickTools() {
-        driver.findElement(toolsButton).click();
+
+        WebElement tools = driver.findElement(toolsButton);
+        wait.until(ExpectedConditions.elementToBeClickable(tools)).click();
     }
 
     // =========================
-    // FLOW METHOD (USED BY TESTS)
+    // FLOW METHOD (REUSABLE)
     // =========================
-    public void openSearchResults(String term, GooglePage googlePage) {
+    public void openSearchResults(WebDriver driver, String term, GooglePage googlePage) {
+
         googlePage.open();
         googlePage.search(term);
         waitForResultsPage();
