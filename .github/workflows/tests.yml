@@ -28,11 +28,15 @@ jobs:
           key: maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: maven-
 
-      # 4. Run tests (CLEAN BUILD = IMPORTANT FIX)
+      # 4. Install dependencies and compile (important for avoiding compilation errors)
+      - name: Install Dependencies and Compile
+        run: mvn install -DskipTests
+
+      # 5. Run tests (CLEAN BUILD = IMPORTANT FIX)
       - name: Run Tests
         run: mvn clean test
 
-      # 5. Upload Extent Report
+      # 6. Upload Extent Report
       - name: Upload Extent Report
         if: always()
         uses: actions/upload-artifact@v4
@@ -40,7 +44,7 @@ jobs:
           name: extent-report
           path: target/extent-report.html
 
-      # 6. Upload Surefire reports (debugging if needed)
+      # 7. Upload Surefire reports (debugging if needed)
       - name: Upload Surefire Reports
         if: always()
         uses: actions/upload-artifact@v4
