@@ -24,13 +24,11 @@ public class GoogleResultsPage {
     // =========================
     private By searchResults = By.id("search");
     private By resultsRoot = By.id("rso");
-
     private By topNavItems = By.cssSelector("div[role='navigation'] a");
-
     private By toolsButton = By.xpath("//div[text()='Tools' or @aria-label='Tools']");
 
     // =========================
-    // WAIT FOR RESULTS PAGE
+    // WAIT
     // =========================
     public boolean waitForResultsPage() {
         try {
@@ -45,43 +43,27 @@ public class GoogleResultsPage {
     }
 
     // =========================
-    // TAB VALIDATION (ROBUST)
+    // TAB METHODS
     // =========================
     public boolean isTabPresent(String tabName) {
 
-        try {
-            // Wait until navigation bar is present
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(topNavItems));
+        List<WebElement> tabs = driver.findElements(topNavItems);
 
-            List<WebElement> tabs = driver.findElements(topNavItems);
+        for (WebElement tab : tabs) {
 
-            for (WebElement tab : tabs) {
+            String text = tab.getText().trim();
+            String aria = tab.getAttribute("aria-label");
 
-                // Visible text
-                String text = tab.getText().trim();
-
-                if (!text.isEmpty() && text.equalsIgnoreCase(tabName)) {
-                    return true;
-                }
-
-                // Fallback: aria-label (important for Google)
-                String aria = tab.getAttribute("aria-label");
-                if (aria != null && aria.equalsIgnoreCase(tabName)) {
-                    return true;
-                }
+            if ((text != null && text.equalsIgnoreCase(tabName)) ||
+                (aria != null && aria.equalsIgnoreCase(tabName))) {
+                return true;
             }
-
-        } catch (Exception ignored) {}
+        }
 
         return false;
     }
 
-    // =========================
-    // CLICK TAB (ROBUST)
-    // =========================
     public void clickTab(String tabName) {
-
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(topNavItems));
 
         List<WebElement> tabs = driver.findElements(topNavItems);
 
@@ -106,13 +88,22 @@ public class GoogleResultsPage {
     // =========================
     public boolean isToolsDisplayed() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(toolsButton)).isDisplayed();
+            return driver.findElement(toolsButton).isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
 
     public void clickTools() {
-        wait.until(ExpectedConditions.elementToBeClickable(toolsButton)).click();
+        driver.findElement(toolsButton).click();
+    }
+
+    // =========================
+    // FLOW METHOD (USED BY TESTS)
+    // =========================
+    public void openSearchResults(String term, GooglePage googlePage) {
+        googlePage.open();
+        googlePage.search(term);
+        waitForResultsPage();
     }
 }
